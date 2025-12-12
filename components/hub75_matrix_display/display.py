@@ -1,3 +1,4 @@
+from esphome import automation
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome import pins
@@ -44,6 +45,9 @@ USE_CUSTOM_LIBRARY = "use_custom_library"
 matrix_display_ns = cg.esphome_ns.namespace("matrix_display")
 MatrixDisplay = matrix_display_ns.class_(
     "MatrixDisplay", cg.PollingComponent, display.DisplayBuffer
+)
+MatrixSetBrightnessAction = matrix_display_ns.class_(
+    "MatrixSetBrightnessAction", automation.Action
 )
 
 shift_driver = cg.global_ns.namespace("HUB75_I2S_CFG").enum("shift_driver")
@@ -105,6 +109,19 @@ CONFIG_SCHEMA = display.FULL_DISPLAY_SCHEMA.extend(
         cv.Optional(LATCH_BLANKING): cv.positive_int,
         cv.Optional(CLOCK_PHASE): cv.boolean,
     }
+)
+
+
+@automation.register_action(
+    "display.hub75_matrix_display.set_brightness",
+    MatrixSetBrightnessAction,
+    cv.maybe_simple_value(
+        {
+            cv.GenerateID(): cv.use_id(MatrixDisplay),
+            cv.Required(BRIGHTNESS): cv.templatable(cv.positive_int),
+        },
+        key=BRIGHTNESS,
+    ),
 )
 
 
