@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cmath>
+
 #include "esphome/core/component.h"
+#include "esphome/core/preferences.h"
 #include "esphome/components/number/number.h"
 #include "../matrix_display.h"
 
@@ -10,11 +13,7 @@ namespace esphome::matrix_display::matrix_display_brightness
     class MatrixDisplayBrightness : public number::Number, public Component
     {
     public:
-        void setup()
-        {
-            // Initialize number value with default display brightness
-            publish_state(display_->get_initial_brightness());
-        }
+        void setup() override;
 
         /**
          * Set the display brightness and update all brightness number entities
@@ -24,6 +23,16 @@ namespace esphome::matrix_display::matrix_display_brightness
         void control(float value);
 
         void dump_config() override;
+
+        void set_restore_value(bool restore_value)
+        {
+            this->restore_value_ = restore_value;
+        }
+
+        void set_initial_value(float initial_value)
+        {
+            this->initial_value_ = initial_value;
+        }
 
         /**
          * Sets the reference to the display component to which this brightness number belongs.
@@ -38,6 +47,15 @@ namespace esphome::matrix_display::matrix_display_brightness
     protected:
         /// @brief display component to which this switch belongs
         MatrixDisplay *display_;
+
+        /// @brief whether this number should persist the last value
+        bool restore_value_{false};
+
+        /// @brief storage for persisting the brightness value when restore_value_ is enabled
+        ESPPreferenceObject pref_;
+
+        /// @brief optional user provided initial value used when restore is disabled or unset
+        float initial_value_{NAN};
     };
 
     /**
