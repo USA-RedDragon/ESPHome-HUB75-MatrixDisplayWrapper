@@ -55,6 +55,10 @@ namespace esphome::matrix_display::matrix_display_brightness
             {
                 ESP_LOGW(TAG, "restore_value: failed to persist brightness");
             }
+            else if (!global_preferences->sync())
+            {
+                ESP_LOGW(TAG, "restore_value: failed to sync preferences to flash");
+            }
         }
     }
 
